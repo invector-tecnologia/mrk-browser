@@ -1,0 +1,19 @@
+Atue como um Engenheiro e Arquiteto de Software Sênior especialista em Rust. Desenvolva o projeto "mrk-browser", um mini-browser modular em Rust com arquitetura híbrida (GUI + TUI) e um pipeline de renderização focado em conversão de conteúdo.
+
+### 1. REQUISITOS ARQUITETURAIS E DE INTERFACE
+- **Core Compartilhado (`mrk-core`):** Crie uma biblioteca interna em Rust para gerenciar a camada de rede (reqwest/tokio) e o pipeline de parsing de dados.
+- **Interface Gráfica (GUI):** Utilize Tauri para renderizar a interface de desktop padrão, expondo uma barra de endereços nativa e um painel de visualização.
+- **Interface de Terminal (TUI):** Utilize o framework Ratatui para fornecer uma experiência completa diretamente no terminal.
+- **Mecanismo de Despacho (CLI/Flags):** O binário final gerado deve aceitar a flag `--tui` para inicializar a interface Ratatui no terminal ativo. Se executado sem flags, deve inicializar a janela gráfica do Tauri.
+
+### 2. PIPELINE DE PARSING (HTML -> MDX)
+- Capture a string HTML crua da resposta HTTP.
+- Desenvolva um parser (utilizando crates como `tl`, `html5ever` ou `scraper`) que sanitize as tags estruturais e converta o conteúdo diretamente para o formato MDX (Markdown estruturado com suporte a blocos JSX/Componentes inline).
+- Na GUI (Tauri), o MDX deve ser renderizado utilizando um componente web adequado. Na TUI (Ratatui), as tags Markdown estruturadas devem ser convertidas em estilos de texto (`ratatui::text::Span`) com cores e recuos, ignorando ou isolando os blocos JSX complexos.
+
+### 3. DEPLOY E EMPACOTAMENTO (OMARCHY/ARCH LINUX)
+- O projeto deve conter um manifesto de build limpo e idiomático em Rust (`Cargo.toml`).
+- Para a distribuição no Omarchy Linux, inclua um arquivo `PKGBUILD` padrão Arch Linux que compile o projeto em modo `--release`, instale o binário final em `/usr/bin/mrk-browser`, e forneça um arquivo `.desktop` para integração com o lançador de aplicações da interface gráfica.
+- Garanta que o processo de desinstalação via `pacman -R mrk-browser` remova todos os artefatos de forma limpa.
+
+Gere a documentação de arquitetura, o PRD detalhado, a estrutura de diretórios do espaço de trabalho e o código-fonte em Rust totalmente implementado, sem o uso de unwraps defensivos e tratando erros via Result estruturados.

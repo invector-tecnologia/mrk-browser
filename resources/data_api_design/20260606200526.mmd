@@ -1,0 +1,50 @@
+
+classDiagram
+    class MRKBrowser {
+        -gui_handler GUIHandler
+        -tui_handler TUIHandler
+        +run() void
+    }
+    class GUIHandler {
+        -browser Browser
+        +display_content(content: String) void
+        +update_address_bar(url: String) void
+    }
+    class TUIHandler {
+        -reader Reader
+        +render_content(content: String) void
+    }
+    class Browser {
+        -tabs Tab[]
+        +navigate(url: String) void
+        +add_tab() Tab
+    }
+    class Tab {
+        -url URL
+        -content Content
+        +load_content(html: String) void
+    }
+    class URL {
+        -address String
+        +get_address() String
+    }
+    class Content {
+        -format Format
+        +convert_to_mdx() MDXContent
+    }
+    class Format {
+        -type String
+        +is_valid() bool
+    }
+    class MDXContent {
+        -content String
+        +render() void
+    }
+    MRKBrowser --> GUIHandler
+    MRKBrowser --> TUIHandler
+    GUIHandler --> Browser
+    Browser --> Tab
+    Tab --> URL
+    Tab --> Content
+    Content --> Format
+    Content --> MDXContent

@@ -1,0 +1,15 @@
+
+sequenceDiagram
+    participant M as MRKBrowser
+    participant GH as GUIHandler
+    participant BH as Browser
+    participant T as TUIHandler
+    participant R as Reader
+    M->>M: run()
+    M->>GH: display_content(content)
+    GH->>BH: navigate(url)
+    BH-->>GH: return tab with content
+    GH->>GH: update_address_bar(url)
+    M->>T: render_content(content)
+    T->>R: read()
+    R-->>T: return rendered content

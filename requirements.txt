@@ -1,0 +1,4 @@
+ratatui==0.16.0
+tokio==1.8.1
+reqwest==0.11.5
+tauri==1.0.0
