@@ -1,93 +1,93 @@
 # mrk-browser
 
-O **mrk-browser** é um mini-browser modular, híbrido e de alta performance desenvolvido em Rust. O projeto foi projetado especificamente para rodar nativamente no **Omarchy Linux**, oferecendo duas interfaces de visualização independentes acionadas por inversão de controlo em tempo de execução, além de um pipeline especializado de transformação de conteúdo focado em conversão estática de dados.
+**mrk-browser** is a modular, hybrid, high-performance mini-browser written in Rust. The project is designed specifically to run natively on **Omarchy Linux**. It offers two independent viewing interfaces, selected through inversion of control at runtime, plus a specialized content transformation pipeline focused on static data conversion.
 
-## 🚀 Arquitetura do Sistema
+## 🚀 System Architecture
 
-O repositório está estruturado sob o conceito de um espaço de trabalho (Workspace) multi-crate em Rust, segregando estritamente as responsabilidades do motor lógico das camadas de apresentação visual:
+The repository is organized as a multi-crate Rust workspace that strictly separates the responsibilities of the logic engine from the visual presentation layers:
 
 ```text
 mrk-browser/
-├── Cargo.toml                  # Manifesto de workspace e dependências globais
-├── mrk-core/                   # Biblioteca Core (Camada de Rede e Parser)
+├── Cargo.toml                  # Workspace manifest and global dependencies
+├── mrk-core/                   # Core library (network layer and parser)
 │   ├── Cargo.toml
 │   └── src/
 │       ├── lib.rs
-│       ├── network.rs          # Cliente HTTP assíncrono (Reqwest + Tokio)
-│       └── parser.rs           # Motor de tokenização DOM (HTML -> MDX)
-├── src/                        # Orquestrador Híbrido Principal (GUI / TUI)
-│   ├── main.rs                 # Ponto de entrada e despacho de Runtimes
-│   ├── tauri_app.rs            # Inicialização e bindings da interface gráfica
-│   └── ratatui_app.rs          # Ciclo de renderização e eventos de terminal
-└── deploy/                     # Artefactos de empacotamento nativo
-    ├── PKGBUILD                # Manifesto de compilação Arch/Omarchy Linux
-    └── mrk-browser.desktop     # Integração com lançadores de aplicações XDG
+│       ├── network.rs          # Asynchronous HTTP client (Reqwest + Tokio)
+│       └── parser.rs           # DOM tokenization engine (HTML -> MDX)
+├── src/                        # Main hybrid orchestrator (GUI / TUI)
+│   ├── main.rs                 # Entry point and runtime dispatch
+│   ├── tauri_app.rs            # Graphical interface initialization and bindings
+│   └── ratatui_app.rs          # Terminal render loop and events
+└── deploy/                     # Native packaging artifacts
+    ├── PKGBUILD                # Arch/Omarchy Linux build manifest
+    └── mrk-browser.desktop     # XDG application launcher integration
 ```
 
-## 🛠️ Modos de Operação (Mecanismo de Despacho)
+## 🛠️ Operating Modes (Dispatch Mechanism)
 
-O binário compilado unificado utiliza as primitivas de processamento do ecossistema Rust para alternar o chassi de execução com base em argumentos CLI de milissegundo:
+The single compiled binary uses the processing primitives of the Rust ecosystem to switch the execution frame based on CLI arguments, in milliseconds:
 
-### 1. Modo Gráfico (GUI - Padrão)
+### 1. Graphical Mode (GUI, default)
 
-Se invocado sem argumentos no terminal ou disparado através do lançador de aplicações desktop, o core delega a renderização para a runtime do **Tauri**.
+When invoked without arguments in the terminal or launched from the desktop application launcher, the core delegates rendering to the **Tauri** runtime.
 
 ```bash
 mrk-browser
 ```
 
-- Fornece uma janela nativa leve e otimizada baseada no motor Webview do sistema operacional.
-- Inclui barra de navegação superior síncrona.
-- Exibe o MDX convertido utilizando injeção controlada de componentes web.
+- Provides a lightweight, optimized native window based on the operating system's Webview engine.
+- Includes a synchronous top navigation bar.
+- Displays the converted MDX using controlled injection of web components.
 
-### 2. Modo Terminal (TUI)
+### 2. Terminal Mode (TUI)
 
-Se invocado explicitamente com a flag `--tui`, o ciclo de vida do Tauri é suspenso antes da alocação de memória gráfica e o controle é assumido pelo painel modular do **Ratatui**.
+When invoked explicitly with the `--tui` flag, the Tauri lifecycle is suspended before graphics memory is allocated, and the modular **Ratatui** panel takes over.
 
 ```bash
 mrk-browser --tui
 ```
 
-- Renderização integral baseada em texto diretamente no terminal ativo da sua sessão.
-- Interface orientada a atalhos de teclado (Keybindings otimizados para Helix/Vim).
-- Conversão avançada de tags Markdown estruturadas para estilos de texto nativos (`ratatui::text::Span`), aplicando recuos lógicos e cores deduzidas do DOM.
+- Fully text-based rendering, directly in your session's active terminal.
+- Keyboard-shortcut-driven interface (keybindings optimized for Helix/Vim).
+- Advanced conversion of structured Markdown tags into native text styles (`ratatui::text::Span`), applying logical indentation and colors inferred from the DOM.
 
-## 🔀 Pipeline de Conversão: HTML para MDX
+## 🔀 Conversion Pipeline: HTML to MDX
 
-O coração tecnológico do `mrk-core` reside no seu fluxo assíncrono de processamento de dados (Pipeline Parsing):
+The technical heart of `mrk-core` is its asynchronous data processing flow (pipeline parsing):
 
-1. **Ingestão Assíncrona:** A camada de rede (`network.rs`) utiliza o `reqwest` sob o runtime do `tokio` para buscar a árvore de dados crua via HTTP/HTTPS.
-2. **Tokenização DOM:** O módulo `parser.rs` consome a string utilizando árvores de nós estáveis (crates `tl` ou `scraper`), isolando o corpo estrutural (`<body>`) e eliminando scripts ou tags de rastreamento maliciosas.
-3. **Compilação MDX:** O parser reconstrói a árvore transformando elementos semânticos HTML em Markdown limpo estruturado, injetando suporte a blocos JSX/Componentes dinâmicos customizados inline.
+1. **Asynchronous Ingestion:** The network layer (`network.rs`) uses `reqwest` on the `tokio` runtime to fetch the raw data tree over HTTP/HTTPS.
+2. **DOM Tokenization:** The `parser.rs` module consumes the string using stable node trees (the `tl` or `scraper` crates), isolating the structural body (`<body>`) and removing scripts and malicious tracking tags.
+3. **MDX Compilation:** The parser rebuilds the tree, turning semantic HTML elements into clean, structured Markdown and injecting support for inline JSX blocks and custom dynamic components.
 
-## 📦 Instalação e Desinstalação (Omarchy Linux / Pacman)
+## 📦 Installation and Uninstallation (Omarchy Linux / Pacman)
 
-O projeto está totalmente em conformidade com as diretivas de empacotamento do Arch Linux, permitindo rastreamento nativo e remoção limpa de dependências pelo gerenciador de pacotes global.
+The project fully complies with Arch Linux packaging guidelines, which allows native tracking and clean dependency removal through the system-wide package manager.
 
-### Compilação e Instalação Local
+### Local Build and Installation
 
-Para gerar o pacote instalador nativo utilizando a receita contida na pasta de deploy, execute:
+To build the native installer package using the recipe in the deploy folder, run:
 
 ```bash
 cd deploy
 makepkg -si
 ```
 
-**O que o instalador faz por baixo do capô:**
+**What the installer does under the hood:**
 
-1. Invoca o compilador Rust para buildar o workspace em modo otimizado de produção (`cargo build --release`).
-2. Move o binário resultante para o caminho global do sistema (`/usr/bin/mrk-browser`).
-3. Copia o arquivo descritor `.desktop` para o diretório de aplicações do sistema (`/usr/share/applications/`), disponibilizando o atalho gráfico instantaneamente no menu do seu ambiente Linux.
+1. Invokes the Rust compiler to build the workspace in optimized production mode (`cargo build --release`).
+2. Moves the resulting binary to the system-wide path (`/usr/bin/mrk-browser`).
+3. Copies the `.desktop` descriptor file to the system applications directory (`/usr/share/applications/`), making the graphical shortcut available right away in your Linux desktop menu.
 
-### Desinstalação Limpa
+### Clean Uninstallation
 
-Para remover completamente o browser e limpar todos os links simbólicos ou arquivos de atalho gerados, chame o gerenciador de pacotes:
+To fully remove the browser and clean up all generated symbolic links and shortcut files, call the package manager:
 
 ```bash
 sudo pacman -R mrk-browser
 ```
 
-## 🔒 Diretrizes de Desenvolvimento Defensivo
+## 🔒 Defensive Development Guidelines
 
-- **Tratamento de Erros:** É terminantemente proibido o uso de macros de interrupção abrupta de runtime (`unwrap()`, `expect()`). Todos os fluxos operacionais de rede e IO de arquivos devem propagar falhas de forma limpa através da estrutura idiomática `Result<T, E>`.
-- **Isolamento de Segurança:** Qualquer script de teste de integração que simule requisições HTTP complexas ou manipulação de disco deve ser executado obrigatoriamente dentro de caixas de areia (sandboxes) configuradas de forma rootless via **Podman**.
+- **Error Handling:** Macros that abruptly stop the runtime (`unwrap()`, `expect()`) are strictly forbidden. All network and file I/O operations must propagate failures cleanly through the idiomatic `Result<T, E>` type.
+- **Security Isolation:** Any integration test script that simulates complex HTTP requests or disk manipulation must run inside rootless sandboxes set up with **Podman**.
